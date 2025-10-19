@@ -10,10 +10,6 @@ set -ouex pipefail
 dnf5 install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
-# Upgrade and install core system packages.
-dnf5 group upgrade -y core
-dnf4 group install -y core
-
 ### Install Multimedia and Codec Packages
 
 # Install multimedia groups and swap ffmpeg-free for the full version.
