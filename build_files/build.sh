@@ -45,7 +45,7 @@ dnf5 install -y \
     libheif-tools \
     pipewire-codec-aptx
 
-dnf5 uninstall -y firefox firefox-langpacks
+dnf5 remove -y firefox firefox-langpacks
 
 # COPR repositories can be enabled for specific package installations and
 # then disabled to prevent them from being included in the final image.
