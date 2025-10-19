@@ -27,7 +27,10 @@ dnf5 install -y libva-intel-driver
 
 # Install H.264 codec support.
 dnf5 install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
-dnf5 config-manager -y setopt fedora-cisco-openh264.enabled=1
+# ERRORS dnf5 config-manager -y setopt fedora-cisco-openh264.enabled=1
+# + dnf5 config-manager -y setopt fedora-cisco-openh264.enabled=1
+# Unknown argument "config-manager" for command "dnf5". Add "--help" for more information about the arguments.
+# It could be a command provided by a plugin, try: dnf5 install 'dnf5-command(config-manager)'?
 
 # Install a selection of tools and codecs.
 dnf5 install -y \
