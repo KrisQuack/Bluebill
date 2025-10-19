@@ -1,24 +1,63 @@
 #!/bin/bash
 
+# This script is set to exit immediately if a command exits with a non-zero status.
 set -ouex pipefail
 
-### Install packages
+### Install Repositories and Core Packages
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/39/x86_64/repoview/index.html&protocol=https&redirect=1
+# Add RPM Fusion (free and non-free) and Terra repositories.
+# The '-y' flag assumes "yes" to any prompts, making the process non-interactive.
+dnf5 install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
-# this installs a package from fedora repos
-dnf5 install -y tmux 
+# Upgrade and install core system packages.
+dnf5 group upgrade -y core
+dnf4 group install -y core
 
-# Use a COPR Example:
-#
+### Install Multimedia and Codec Packages
+
+# Install multimedia groups and swap ffmpeg-free for the full version.
+dnf4 group install -y multimedia
+dnf5 swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
+dnf5 upgrade -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
+dnf5 group install -y sound-and-video
+
+### Install Hardware Acceleration and Additional Packages
+
+# Install libraries for hardware-accelerated video decoding/encoding.
+dnf5 install -y ffmpeg-libs libva libva-utils
+dnf5 swap -y libva-intel-media-driver intel-media-driver --allowerasing
+dnf5 install -y libva-intel-driver
+
+# Install H.264 codec support.
+dnf5 install -y openh264 gstreamer1-plugin-openh264 mozilla-openh264
+dnf5 config-manager -y setopt fedora-cisco-openh264.enabled=1
+
+# Install a selection of tools and codecs.
+dnf5 install -y \
+    tmux \
+    intel-media-driver \
+    libavcodec-freeworld \
+    distrobox \
+    ffmpegthumbnailer \
+    gnome-tweak-tool \
+    heif-pixbuf-loader \
+    libheif-freeworld \
+    libheif-tools \
+    pipewire-codec-aptx
+
+dnf5 uninstall -y firefox firefox-langpacks
+
+# COPR repositories can be enabled for specific package installations and
+# then disabled to prevent them from being included in the final image.
+# Example (commented out):
 # dnf5 -y copr enable ublue-os/staging
 # dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
-#### Example for enabling a System Unit File
+### Enable System Services
 
+# Enable the Podman socket for running containers.
+# This command is non-interactive by default.
 systemctl enable podman.socket
+systemctl disable NetworkManager-wait-online.service
