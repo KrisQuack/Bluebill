@@ -13,7 +13,7 @@ dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/te
 ### Install Multimedia and Codec Packages
 
 # Install multimedia groups and swap ffmpeg-free for the full version.
-dnf4 group install -y multimedia
+dnf5 group install -y multimedia
 dnf5 swap -y 'ffmpeg-free' 'ffmpeg' --allowerasing
 dnf5 upgrade -y @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin
 dnf5 group install -y sound-and-video
